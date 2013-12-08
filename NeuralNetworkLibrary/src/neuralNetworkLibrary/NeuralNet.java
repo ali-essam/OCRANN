@@ -12,6 +12,7 @@ public class NeuralNet {
 	}
 
 
+
 	public double[] run(double[] input) {
 		// TODO Implement run
 		return null;
