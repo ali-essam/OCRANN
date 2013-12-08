@@ -11,8 +11,9 @@ public class NeuralNet {
 		layers = new ArrayList<Layer>();
 	}
 
-	public List<Double> run(List<Double> input) {
-		
+
+	public double[] run(double[] input) {
+		// TODO Implement run
 		return null;
 	}
 
