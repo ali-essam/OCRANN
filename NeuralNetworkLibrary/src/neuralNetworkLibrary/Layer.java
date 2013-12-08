@@ -16,6 +16,7 @@ public class Layer {
 	}
 
 	protected void initialize(double[] inputVector) {
+		this.inputVector = inputVector;
 		for (Neuron neuron : neurons) {
 			neuron.initialize(inputVector);
 		}
@@ -45,5 +46,12 @@ public class Layer {
 	 */
 	public double[] getOutputVector() {
 		return outputVector;
+	}
+
+	/**
+	 * @param outputVector the outputVector to set
+	 */
+	public void setOutputVector(double[] outputVector) {
+		this.outputVector = outputVector;
 	}
 }
