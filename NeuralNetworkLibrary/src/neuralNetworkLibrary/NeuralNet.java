@@ -10,7 +10,7 @@ public class NeuralNet {
 		layers = new ArrayList<Layer>();
 	}
 
-	public double[] run(List<Double> input) {
+	public double[] run(double[] input) {
 		// TODO Implement run
 		return null;
 	}
