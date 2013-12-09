@@ -3,27 +3,44 @@ package neuralNetworkLibrary;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Layer {
-	private List<Neuron> neurons;
-	private double[] inputVector;
-	private double[] outputVector;
-
-
+public abstract class Layer {
+	public int neuronCount;
+	protected List<Neuron> neurons;
+	protected double[] inputVector;
+	protected double[] outputVector;
 
 	public Layer(int neuronCount) {
+		this.neuronCount = neuronCount;
 		neurons = new ArrayList<Neuron>(neuronCount);
+		for (int i = 0; i < neuronCount; i++) {
+			neurons.add(new Neuron(this));
+		}
 		outputVector = new double[neuronCount];
 	}
 
 	protected void initialize(double[] inputVector) {
-		this.inputVector = inputVector;
+		this.setInputVector(inputVector);
 		for (Neuron neuron : neurons) {
 			neuron.initialize(inputVector);
 		}
 	}
 
 	protected void run() {
+		for (int i = 0; i < neurons.size(); i++) {
+			neurons.get(i).run();
+			outputVector[i] = neurons.get(i).getOutput();
+		}
+	}
 
+	abstract double activate(double input);
+
+	abstract double derivative(double input, double output);
+
+	/**
+	 * @return neuron at index i
+	 */
+	public Neuron getNeuron(int i) {
+		return neurons.get(i);
 	}
 	
 	/**
@@ -49,9 +66,12 @@ public class Layer {
 	}
 
 	/**
-	 * @param outputVector the outputVector to set
+	 * @param outputVector
+	 *            the outputVector to set
 	 */
 	public void setOutputVector(double[] outputVector) {
-		this.outputVector = outputVector;
+		for (int i = 0; i < this.outputVector.length; i++) {
+			this.outputVector[i] = outputVector[i];
+		}
 	}
 }
