@@ -72,7 +72,6 @@ public class DrawingArea extends View {
 			}
 			mcanvas.drawLine(x, y, lastX, lastY, mpaint);
 			mcanvas.drawCircle(x, y, drawingRadius, mpaint);
-			Log.e("aybtngan", x + "," + y);
 			lastX = x;
 			lastY = y;
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
