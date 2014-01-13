@@ -28,6 +28,9 @@ public class DateSetLoader {
 		DirectoryStream<Path> stream = Files.newDirectoryStream(dir);
 		for (Path file : stream) 
 		{
+			int ind=file.getFileName().toString().lastIndexOf('.');
+			String extension = file.getFileName().toString().substring(ind+1);
+			if(extension!="png") continue;
 			img = ImageIO.read(file.toFile());
 			int[] rgb = img.getRGB(0, 0, img.getWidth(), img.getHeight(), null,
 					0, img.getWidth());
