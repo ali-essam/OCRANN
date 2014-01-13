@@ -1,25 +1,56 @@
 package neuralNetworkLibrary;
 
+import java.util.ArrayList;
+
 public class Neuron {
 	private double input;
 	private double output;
-	private double error;
+	private double errorFactor;
+	private double delta;
 	private double bias;
 	private Layer parentLayer;
-
-	double[] weightVector;
-	double[] inputVector;
-
+	
+	private ArrayList<Connection> inputConnections;
+	private ArrayList<Connection> outputConnections;
+	
 	public Neuron(Layer parentLayer) {
 		this.parentLayer = parentLayer;
+		inputConnections = new ArrayList<Connection>();
+		outputConnections = new ArrayList<Connection>();
+		bias = Math.random();
 	}
 	
 	private void calculateSum(){
 		input = 0;
-		for(int i=0;i<inputVector.length;i++){
-			input += inputVector[i]*weightVector[i];
+		for (Connection connection : inputConnections) {
+			input+=connection.weight*connection.getFrom().getOutput();
 		}
 		input += bias;
+	}
+	
+	protected void run() {
+		calculateSum();
+		output = parentLayer.activate(input);
+	}
+	
+	public void connectTo(Neuron toNeuron){
+		Connection connection = new Connection(this, toNeuron);
+		this.addOutputConnection(connection);
+		toNeuron.addInputConnection(connection);
+	}
+	
+	public void connectTo(Neuron toNeuron,double weight){
+		Connection connection = new Connection(this, toNeuron, weight);
+		this.addOutputConnection(connection);
+		toNeuron.addInputConnection(connection);
+	}
+	
+	public void addInputConnection(Connection connection){
+		inputConnections.add(connection);
+	}
+	
+	public void addOutputConnection(Connection connection){
+		outputConnections.add(connection);
 	}
 	
 	/**
@@ -34,42 +65,6 @@ public class Neuron {
 	 */
 	public void setBias(double bias) {
 		this.bias = bias;
-	}
-
-	protected void run() {
-		calculateSum();
-		output = parentLayer.activate(input);
-	}
-
-	protected void initialize(double[] inputVector) {
-		weightVector = new double[inputVector.length];
-		this.inputVector = inputVector;
-		// Initialize weights with random values from 0.0 to 1.0
-		for (int i = 0; i < weightVector.length; i++)
-			weightVector[i] = Math.random();
-		bias = Math.random();
-	}
-
-	/**
-	 * @param set weight for W(ji) where j is the current neuron and i
-	 * is the neuron in previous layer
-	 */
-	public void setWeight(int i,double weight) {
-		this.weightVector[i] = weight;
-	}
-	
-	/**
-	 * @return the weightVector
-	 */
-	public double[] getWeightVector() {
-		return weightVector;
-	}
-
-	/**
-	 * @param weightVector the weightVector to set
-	 */
-	public void setWeightVector(double[] weightVector) {
-		this.weightVector = weightVector;
 	}
 
 	/**
@@ -99,18 +94,38 @@ public class Neuron {
 	public void setOutput(double output) {
 		this.output = output;
 	}
-
-	/**
-	 * @return the error
-	 */
-	public double getError() {
-		return error;
+	
+	public void setWeightVector(double[] weightVector){
+		for (int i = 0; i < weightVector.length; i++) {
+			inputConnections.get(i).setWeight(weightVector[i]);
+		}
 	}
 
 	/**
-	 * @param error the error to set
+	 * @return the errorFactor
 	 */
-	public void setError(double error) {
-		this.error = error;
+	public double getErrorFactor() {
+		return errorFactor;
+	}
+
+	/**
+	 * @param errorFactor the errorFactor to set
+	 */
+	public void setErrorFactor(double errorFactor) {
+		this.errorFactor = errorFactor;
+	}
+
+	/**
+	 * @return the delta
+	 */
+	public double getDelta() {
+		return delta;
+	}
+
+	/**
+	 * @param delta the delta to set
+	 */
+	public void setDelta(double delta) {
+		this.delta = delta;
 	}
 }

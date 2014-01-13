@@ -6,8 +6,6 @@ import java.util.ArrayList;
 public abstract class Layer {
 	public int neuronCount;
 	protected List<Neuron> neurons;
-	protected double[] inputVector;
-	protected double[] outputVector;
 
 	public Layer(int neuronCount) {
 		this.neuronCount = neuronCount;
@@ -15,23 +13,24 @@ public abstract class Layer {
 		for (int i = 0; i < neuronCount; i++) {
 			neurons.add(new Neuron(this));
 		}
-		outputVector = new double[neuronCount];
 	}
 
-	protected void initialize(double[] inputVector) {
-		this.setInputVector(inputVector);
-		for (Neuron neuron : neurons) {
-			neuron.initialize(inputVector);
-		}
-	}
 
 	protected void run() {
 		for (int i = 0; i < neurons.size(); i++) {
 			neurons.get(i).run();
-			outputVector[i] = neurons.get(i).getOutput();
 		}
 	}
 
+	public void connectTo(Layer layer){
+		for (Neuron myNeuron : neurons) {
+			for (Neuron otherNeuron : layer.getNeurons()) {
+				myNeuron.connectTo(otherNeuron);
+			}
+		}
+	}
+	
+	
 	abstract double activate(double input);
 
 	abstract double derivative(double input, double output);
@@ -44,34 +43,29 @@ public abstract class Layer {
 	}
 	
 	/**
-	 * @return the inputVector
-	 */
-	public double[] getInputVector() {
-		return inputVector;
-	}
-
-	/**
-	 * @param inputVector
-	 *            the inputVector to set
-	 */
-	public void setInputVector(double[] inputVector) {
-		this.inputVector = inputVector;
-	}
-
-	/**
-	 * @return the outputVector
-	 */
-	public double[] getOutputVector() {
-		return outputVector;
-	}
-
-	/**
 	 * @param outputVector
 	 *            the outputVector to set
 	 */
 	public void setOutputVector(double[] outputVector) {
-		for (int i = 0; i < this.outputVector.length; i++) {
-			this.outputVector[i] = outputVector[i];
+		for (int i = 0; i < this.neuronCount; i++) {
+			neurons.get(i).setOutput(outputVector[i]);
 		}
+	}
+	
+	public double[] getOutputVector() {
+		double[] outputVector = new double[neurons.size()];
+		int i=0;
+		for (Neuron neuron : neurons) {
+			outputVector[i++] = neuron.getOutput();
+		}
+		return outputVector;
+	}
+
+
+	/**
+	 * @return the neurons
+	 */
+	public List<Neuron> getNeurons() {
+		return neurons;
 	}
 }

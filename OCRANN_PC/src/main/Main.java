@@ -15,12 +15,7 @@ public class Main {
 		net.addLayer(new SigmoidLayer(2));
 		net.addLayer(new SigmoidLayer(1));
 		
-		try {
-			// Initialize Network
-			net.initialize();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		net.connectAllLayers();
 		
 		// Set weights and biases manually
 		net.getLayer(1).getNeuron(0).setWeightVector(new double[]{0.1,0.9});
