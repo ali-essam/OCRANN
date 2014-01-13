@@ -10,12 +10,12 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
-public class DateSetLoader {
+public class DataSetLoader {
 
 	public static double[][] pixels;
 	public static double[][] result;
 
-	DateSetLoader()
+	DataSetLoader()
 	{
 		pixels=new double[5000][400] ;
 		result=new double [5000][10];
