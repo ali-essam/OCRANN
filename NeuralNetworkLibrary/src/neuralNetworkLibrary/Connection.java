@@ -1,7 +1,10 @@
 package neuralNetworkLibrary;
 
-public class Connection {
+import java.io.Serializable;
 
+public class Connection implements Serializable {
+	private static final long serialVersionUID = -8019833366309438802L;
+	
 	Neuron from;
 	Neuron to;
 	double weight;
@@ -16,6 +19,7 @@ public class Connection {
 		this.from = from;
 		this.to = to;
 		weight = Math.random();
+		if(Math.random()<0.5)weight*=-1;
 	}
 
 	/**

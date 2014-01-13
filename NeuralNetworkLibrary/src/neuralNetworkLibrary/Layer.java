@@ -1,9 +1,12 @@
 package neuralNetworkLibrary;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-public abstract class Layer {
+public abstract class Layer implements Serializable {
+	private static final long serialVersionUID = 8320324059182006752L;
+	
 	public int neuronCount;
 	protected List<Neuron> neurons;
 
@@ -61,6 +64,24 @@ public abstract class Layer {
 		return outputVector;
 	}
 
+	public void updateNeuronsDelta(double[] expectedOutputVector){
+		int i=0;
+		for (Neuron neuron : neurons) {
+			neuron.updateDelta(expectedOutputVector[i++]-neuron.getOutput());
+		}
+	}
+	
+	public void updateNeuronsDelta(){
+		for (Neuron neuron : neurons) {
+			neuron.updateDelta();
+		}
+	}
+	
+	public void updateNeuronWeights(double learningRate){
+		for (Neuron neuron : neurons) {
+			neuron.updateWeights(learningRate);
+		}
+	}
 
 	/**
 	 * @return the neurons

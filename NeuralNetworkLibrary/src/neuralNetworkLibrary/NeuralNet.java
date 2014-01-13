@@ -1,12 +1,16 @@
 package neuralNetworkLibrary;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-public class NeuralNet {
+public class NeuralNet implements Serializable {
+	private static final long serialVersionUID = 9187767511560185035L;
+	
 	private List<Layer> layers;
 	private Layer inputLayer;
 	private Layer outputLayer;
+	private double mse; 
 
 	public NeuralNet() {
 		layers = new ArrayList<Layer>();
@@ -44,5 +48,36 @@ public class NeuralNet {
 
 	public Layer getLayer(int i) {
 		return layers.get(i);
+	}
+	
+	public void updateMSE(double[] expectedOutputVector,double[] outputVector){
+		mse = 0;
+		for (int i = 0; i < outputVector.length; i++) {
+			double error = outputVector[i]-expectedOutputVector[i];
+			mse+= error*error;
+		}
+		mse /= 2.0;
+	}
+	
+	public void train(double[] inputVector, double[] expectedOutputVector, double learningRate){
+		run(inputVector);
+		outputLayer.updateNeuronsDelta(expectedOutputVector);
+		
+		for (int i = layers.size()-2; i > 0; i--) {
+			layers.get(i).updateNeuronsDelta();
+		}
+		
+		for (int i = 1; i < layers.size(); i++) {
+			layers.get(i).updateNeuronWeights(learningRate);
+		}
+		
+		updateMSE(expectedOutputVector, this.outputLayer.getOutputVector());
+	}
+
+	/**
+	 * @return the mse
+	 */
+	public double getMSE() {
+		return mse;
 	}
 }

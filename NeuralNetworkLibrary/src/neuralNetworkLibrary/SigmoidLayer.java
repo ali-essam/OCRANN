@@ -1,6 +1,7 @@
 package neuralNetworkLibrary;
 
 public class SigmoidLayer extends Layer {
+	private static final long serialVersionUID = -2263395826730110461L;
 
 	public SigmoidLayer(int neuronCount) {
 		super(neuronCount);

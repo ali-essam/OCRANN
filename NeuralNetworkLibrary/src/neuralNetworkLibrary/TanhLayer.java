@@ -1,6 +1,7 @@
 package neuralNetworkLibrary;
 
 public class TanhLayer extends Layer {
+	private static final long serialVersionUID = -6489134890946461496L;
 
 	public TanhLayer(int neuronCount) {
 		super(neuronCount);
