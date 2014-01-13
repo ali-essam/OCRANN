@@ -15,13 +15,12 @@ public class DataSetLoader {
 	public static double[][] pixels;
 	public static double[][] result;
 
-	DataSetLoader()
-	{
-		pixels=new double[5000][400] ;
-		result=new double [5000][10];
-	}
+	
 	
 	public static void intialize() throws IOException {
+		pixels=new double[5000][400] ;
+		result=new double [5000][10];
+
 		int counter = 0;
 		BufferedImage img = null;
 		Path dir = FileSystems.getDefault().getPath("src/OCR_Images");
@@ -30,7 +29,7 @@ public class DataSetLoader {
 		{
 			int ind=file.getFileName().toString().lastIndexOf('.');
 			String extension = file.getFileName().toString().substring(ind+1);
-			if(extension!="png") continue;
+			if(!extension.equals("png")) continue;
 			img = ImageIO.read(file.toFile());
 			int[] rgb = img.getRGB(0, 0, img.getWidth(), img.getHeight(), null,
 					0, img.getWidth());
@@ -38,13 +37,13 @@ public class DataSetLoader {
 				pixels[counter][i] = new Color(rgb[i]).getRed() / 255.0;
 			}
 			String fileName=file.getFileName().toString();
-			char digit=fileName.charAt(fileName.length()-1);
+			char digit=fileName.charAt(ind-1);
 			for(char i='0';i<='9';i++)
 			{
 				if(digit==i)
-				    result[counter][i]=1;
+				    result[counter][i-'0']=1;
 				else 
-					result[counter][i]=0;
+					result[counter][i-'0']=0;
 			}
 			counter++;
 		}

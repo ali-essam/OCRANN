@@ -124,6 +124,54 @@ public class Main {
 			System.out.println(out[i]);
 		}
 	}
+	
+	public static void testDataSet(){
+		try {
+			DataSetLoader.intialize();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		NeuralNet net = new NeuralNet();
+		net.addLayer(new InputLayer(400));
+		net.addLayer(new TanhLayer(300));
+		net.addLayer(new TanhLayer(10));
+
+		net.connectAllLayers();
+
+		double initialLearningRate = 0.0001;
+		double minLearningRate = 0.00005;
+
+		double learningRate = initialLearningRate;
+
+		double lmse = -1;
+		double mse = 0;
+		double factor = 0.77;
+		int epoch = 0;
+		do {
+			double newLearningRate = learningRate * factor;
+			if (newLearningRate >= minLearningRate)
+				learningRate = newLearningRate;
+			else
+				learningRate = minLearningRate;
+			lmse = mse;
+			
+			for (int i = 0; i < 5000; i++) {
+				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i], newLearningRate);
+				mse+=net.getMSE();
+				if (i % 1000 == 0)
+					System.out.println("Epoch Number: " + epoch + ", " + (i+1) + " of 5000");
+			}
+			
+			mse /= 5000.0;
+
+			System.out.println("MSE epochNum: " + (epoch + 1) + " = " + mse
+					+ ", LR = " + learningRate);
+
+			epoch++;
+			saveNetwork(net, "nets/net"+epoch+".tmp");
+		} while (Math.abs(lmse - mse) > 1e-3 || epoch == 1);
+	}
 
 	/**
 	 * @param args
@@ -131,7 +179,9 @@ public class Main {
 	public static void main(String[] args) {
 		// testRunNN();
 		//testTraining();
-		testLoadNN();
+		//testLoadNN();
+		
+		testDataSet();
 	}
 
 }
