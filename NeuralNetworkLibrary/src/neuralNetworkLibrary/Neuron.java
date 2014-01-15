@@ -1,5 +1,7 @@
 package neuralNetworkLibrary;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -27,7 +29,7 @@ public class Neuron implements Serializable{
 	private void calculateSum() {
 		input = 0;
 		for (Connection connection : inputConnections) {
-			input += connection.weight * connection.getFrom().getOutput();
+			input += connection.getWeight() * connection.getFrom().getOutput();
 		}
 		input += bias;
 	}
@@ -78,6 +80,19 @@ public class Neuron implements Serializable{
 		}
 	}
 
+	protected void reconstructConnections(){
+		for (Connection connection : outputConnections) {
+			connection.setFrom(this);
+			connection.getTo().addInputConnection(connection);
+		}
+	}
+
+	private void readObject(ObjectInputStream ois)
+			throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+		inputConnections = new ArrayList<Connection>();
+	}
+	
 	/**
 	 * @return the bias
 	 */

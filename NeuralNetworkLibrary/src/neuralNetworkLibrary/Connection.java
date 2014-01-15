@@ -5,9 +5,9 @@ import java.io.Serializable;
 public class Connection implements Serializable {
 	private static final long serialVersionUID = -8019833366309438802L;
 	
-	Neuron from;
-	Neuron to;
-	double weight;
+	private transient Neuron from;
+	private Neuron to;
+	private double weight;
 
 	public Connection(Neuron from, Neuron to, double weight) {
 		this.from = from;

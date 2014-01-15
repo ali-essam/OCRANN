@@ -1,16 +1,19 @@
 package neuralNetworkLibrary;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
 public class NeuralNet implements Serializable {
 	private static final long serialVersionUID = 9187767511560185035L;
-	
-	private List<Layer> layers;
-	private Layer inputLayer;
-	private Layer outputLayer;
-	private double mse; 
+
+	private transient ArrayList<Layer> layers;
+	private transient Layer inputLayer;
+	private transient Layer outputLayer;
+	private double mse;
 
 	public NeuralNet() {
 		layers = new ArrayList<Layer>();
@@ -21,7 +24,7 @@ public class NeuralNet implements Serializable {
 			throw new IllegalArgumentException(
 					"input vector length must equal input layer size");
 		}
-		
+
 		inputLayer.setOutputVector(inputVector);
 
 		// Skip the input layer in calculations
@@ -32,12 +35,12 @@ public class NeuralNet implements Serializable {
 		return outputLayer.getOutputVector();
 	}
 
-	public void connectAllLayers(){
-		for (int i = 0; i < layers.size()-1; i++) {
-			layers.get(i).connectTo(layers.get(i+1));
+	public void connectAllLayers() {
+		for (int i = 0; i < layers.size() - 1; i++) {
+			layers.get(i).connectTo(layers.get(i + 1));
 		}
 	}
-	
+
 	public void addLayer(Layer layer) {
 		outputLayer = layer;
 		if (layers.size() == 0)
@@ -49,29 +52,55 @@ public class NeuralNet implements Serializable {
 	public Layer getLayer(int i) {
 		return layers.get(i);
 	}
-	
-	public void updateMSE(double[] expectedOutputVector,double[] outputVector){
+
+	public void updateMSE(double[] expectedOutputVector, double[] outputVector) {
 		mse = 0;
 		for (int i = 0; i < outputVector.length; i++) {
-			double error = outputVector[i]-expectedOutputVector[i];
-			mse+= error*error;
+			double error = outputVector[i] - expectedOutputVector[i];
+			mse += error * error;
 		}
 		mse /= 2.0;
 	}
-	
-	public void train(double[] inputVector, double[] expectedOutputVector, double learningRate){
+
+	public void train(double[] inputVector, double[] expectedOutputVector,
+			double learningRate) {
 		run(inputVector);
 		outputLayer.updateNeuronsDelta(expectedOutputVector);
-		
-		for (int i = layers.size()-2; i > 0; i--) {
+
+		for (int i = layers.size() - 2; i > 0; i--) {
 			layers.get(i).updateNeuronsDelta();
 		}
-		
+
 		for (int i = 1; i < layers.size(); i++) {
 			layers.get(i).updateNeuronWeights(learningRate);
 		}
-		
+
 		updateMSE(expectedOutputVector, this.outputLayer.getOutputVector());
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		oos.writeInt(layers.size());
+		for (int i = layers.size() - 1; i >= 0; i--) {
+			oos.writeObject(layers.get(i));
+		}
+	}
+
+	private void readObject(ObjectInputStream ois)
+			throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+		int layersSize = ois.readInt();
+		this.layers = new ArrayList<Layer>(layersSize);
+		for (int i = layersSize - 1; i >= 0; i--) {
+			this.layers.add(0, (Layer)ois.readObject());
+		}
+		
+		for (Layer layer : layers) {
+			layer.reconstructConnections();
+		}
+		
+		inputLayer = layers.get(0);
+		outputLayer = layers.get(layers.size()-1);
 	}
 
 	/**

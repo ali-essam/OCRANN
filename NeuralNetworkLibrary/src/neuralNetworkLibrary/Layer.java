@@ -33,6 +33,11 @@ public abstract class Layer implements Serializable {
 		}
 	}
 	
+	protected void reconstructConnections(){
+		for (Neuron neuron : neurons) {
+			neuron.reconstructConnections();
+		}
+	}
 	
 	abstract double activate(double input);
 

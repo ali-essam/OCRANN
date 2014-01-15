@@ -14,6 +14,7 @@ public class Main {
 			out.writeObject(net);
 			out.close();
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -25,7 +26,7 @@ public class Main {
 			net = (NeuralNet) reader.readObject();
 			reader.close();
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 		return net;
 	}
@@ -156,23 +157,41 @@ public class Main {
 				learningRate = minLearningRate;
 			lmse = mse;
 			
-			for (int i = 0; i < 5000; i++) {
+			int N = 2;
+			
+			for (int i = 0; i < N; i++) {
 				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i], newLearningRate);
 				mse+=net.getMSE();
 				if (i % 1000 == 0)
 					System.out.println("Epoch Number: " + epoch + ", " + (i+1) + " of 5000");
 			}
 			
-			mse /= 5000.0;
+			mse /= N;
 
 			System.out.println("MSE epochNum: " + (epoch + 1) + " = " + mse
 					+ ", LR = " + learningRate);
 
 			epoch++;
-			saveNetwork(net, "nets/net"+epoch+".tmp");
-		} while (Math.abs(lmse - mse) > 1e-3 || epoch == 1);
+		} while (epoch <= 1000);//while (Math.abs(lmse - mse) > 1e-3 || epoch == 1);
+		saveNetwork(net, "nets/net"+epoch+".tmp");
+		
 	}
 
+	private static void testLoadNetDataSet(){
+		if(DataSetLoader.pixels==null)
+			try {
+				DataSetLoader.intialize();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		NeuralNet net = loadNetwork("nets/net10001.tmp");
+		double[] out = net.run(DataSetLoader.pixels[0]);
+		for (int i = 0; i < out.length; i++) {
+			System.out.println(i+" = "+out[i]+ " Expected:"+DataSetLoader.result[0][i]);
+		}
+	}
+	
 	/**
 	 * @param args
 	 */
@@ -181,7 +200,9 @@ public class Main {
 		//testTraining();
 		//testLoadNN();
 		
-		testDataSet();
+		//testDataSet();
+		
+		testLoadNetDataSet();
 	}
 
 }
