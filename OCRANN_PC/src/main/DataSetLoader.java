@@ -27,8 +27,9 @@ public class DataSetLoader {
 		DirectoryStream<Path> stream = Files.newDirectoryStream(dir);
 		for (Path file : stream) 
 		{
-			int ind=file.getFileName().toString().lastIndexOf('.');
-			String extension = file.getFileName().toString().substring(ind+1);
+			String fileName=file.getFileName().toString();
+			int ind=fileName.lastIndexOf('.');
+			String extension = fileName.substring(ind+1);
 			if(!extension.equals("png")) continue;
 			img = ImageIO.read(file.toFile());
 			int[] rgb = img.getRGB(0, 0, img.getWidth(), img.getHeight(), null,
@@ -36,7 +37,6 @@ public class DataSetLoader {
 			for (int i = 0; i < rgb.length; i++) {
 				pixels[counter][i] = new Color(rgb[i]).getRed() / 255.0;
 			}
-			String fileName=file.getFileName().toString();
 			char digit=fileName.charAt(ind-1);
 			for(char i='0';i<='9';i++)
 			{
