@@ -73,23 +73,23 @@ public class Main {
 			epoch++;
 		} while (Math.abs(lmse - mse) > 1e-7 || epoch == 1);
 
-//		System.out.println("0 + 0 = " + net.run(new double[] { 0, 0 })[0]);
-//		System.out.println("0 + 1 = " + net.run(new double[] { 0, 1 })[0]);
-//		System.out.println("1 + 0 = " + net.run(new double[] { 1, 0 })[0]);
-//		System.out.println("1 + 1 = " + net.run(new double[] { 1, 1 })[0]);
-		
+		// System.out.println("0 + 0 = " + net.run(new double[] { 0, 0 })[0]);
+		// System.out.println("0 + 1 = " + net.run(new double[] { 0, 1 })[0]);
+		// System.out.println("1 + 0 = " + net.run(new double[] { 1, 0 })[0]);
+		// System.out.println("1 + 1 = " + net.run(new double[] { 1, 1 })[0]);
+
 		saveNetwork(net, "orNet.tmp");
 	}
 
-	private static void testLoadNN(){
+	private static void testLoadNN() {
 		NeuralNet net = loadNetwork("orNet.tmp");
-		
+
 		System.out.println("0 + 0 = " + net.run(new double[] { 0, 0 })[0]);
 		System.out.println("0 + 1 = " + net.run(new double[] { 0, 1 })[0]);
 		System.out.println("1 + 0 = " + net.run(new double[] { 1, 0 })[0]);
 		System.out.println("1 + 1 = " + net.run(new double[] { 1, 1 })[0]);
 	}
-	
+
 	private static void testRunNN() {
 		// Sample test case
 		// http://www4.rgu.ac.uk/files/chapter2%20-%20intro%20to%20ANNs.pdf
@@ -125,14 +125,14 @@ public class Main {
 			System.out.println(out[i]);
 		}
 	}
-	
-	public static void testDataSet(){
+
+	public static void testDataSet() {
 		try {
 			DataSetLoader.intialize();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		NeuralNet net = new NeuralNet();
 		net.addLayer(new InputLayer(400));
 		net.addLayer(new TanhLayer(300));
@@ -156,29 +156,32 @@ public class Main {
 			else
 				learningRate = minLearningRate;
 			lmse = mse;
-			
+
 			int N = 2;
-			
+
 			for (int i = 0; i < N; i++) {
-				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i], newLearningRate);
-				mse+=net.getMSE();
+				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i],
+						newLearningRate);
+				mse += net.getMSE();
 				if (i % 1000 == 0)
-					System.out.println("Epoch Number: " + epoch + ", " + (i+1) + " of 5000");
+					System.out.println("Epoch Number: " + epoch + ", "
+							+ (i + 1) + " of 5000");
 			}
-			
+
 			mse /= N;
 
 			System.out.println("MSE epochNum: " + (epoch + 1) + " = " + mse
 					+ ", LR = " + learningRate);
 
 			epoch++;
-		} while (epoch <= 1000);//while (Math.abs(lmse - mse) > 1e-3 || epoch == 1);
-		saveNetwork(net, "nets/net"+epoch+".tmp");
-		
+		} while (epoch <= 1000);// while (Math.abs(lmse - mse) > 1e-3 || epoch
+								// == 1);
+		saveNetwork(net, "nets/net" + epoch + ".tmp");
+
 	}
 
-	private static void testLoadNetDataSet(){
-		if(DataSetLoader.pixels==null)
+	private static void testLoadNetDataSet() {
+		if (DataSetLoader.pixels == null)
 			try {
 				DataSetLoader.intialize();
 			} catch (IOException e) {
@@ -188,21 +191,69 @@ public class Main {
 		NeuralNet net = loadNetwork("nets/net10001.tmp");
 		double[] out = net.run(DataSetLoader.pixels[0]);
 		for (int i = 0; i < out.length; i++) {
-			System.out.println(i+" = "+out[i]+ " Expected:"+DataSetLoader.result[0][i]);
+			System.out.println(i + " = " + out[i] + " Expected:"
+					+ DataSetLoader.result[0][i]);
 		}
 	}
-	
+
+	private static void testTrainingHelper() {
+		try {
+			DataSetLoader.intialize();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		NeuralNet net = new NeuralNet();
+		net.addLayer(new InputLayer(400));
+		net.addLayer(new TanhLayer(300));
+		net.addLayer(new TanhLayer(10));
+
+		net.connectAllLayers();
+
+		TrainingDataSet trainingDataSet = new TrainingDataSet();
+
+		for (int i = 0; i < DataSetLoader.pixels.length - 4000; i++) {
+			trainingDataSet.addTrainingDataItem(new TrainingDataItem(
+					DataSetLoader.pixels[i], DataSetLoader.result[i]));
+		}
+
+		final TrainingHelper trainingHelper = new TrainingHelper(net,
+				trainingDataSet, trainingDataSet.subDataSet(0, 200));
+
+		trainingHelper.setOnEpochFinishListner(new OnEpochFinishListener() {
+			@Override
+			public void onEpochFinish() {
+				System.out.println("epoch num: " + trainingHelper.getEpoch() + ", MSE= "+trainingHelper.getEpochMSE());
+				if (trainingHelper.getEpoch() == 10)
+					trainingHelper.stopTraining();
+			}
+		});
+
+		trainingHelper.setOnItemTrainListener(new OnItemTrainListener() {
+
+			@Override
+			public void onItemTrain(int trainingDataItemIndex) {
+				System.out.println(trainingDataItemIndex + " of "
+						+ trainingHelper.getTrainingDataSet().size());
+			}
+		});
+
+		trainingHelper.setLearningRate(0.001);
+		trainingHelper.train();
+	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// testRunNN();
-		//testTraining();
-		//testLoadNN();
-		
-		//testDataSet();
-		
-		testLoadNetDataSet();
+		// testTraining();
+		// testLoadNN();
+
+		// testDataSet();
+
+		// testLoadNetDataSet();
+		testTrainingHelper();
 	}
 
 }
