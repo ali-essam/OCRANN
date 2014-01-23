@@ -6,6 +6,8 @@ import neuralNetworkLibrary.*;
 
 public class Main {
 
+	static LearningParameters learningParameters; 
+	
 	public static void saveNetwork(NeuralNet net, String filename) {
 		try {
 			// Serialize data object to a file
@@ -32,7 +34,7 @@ public class Main {
 	}
 
 	private static void testTraining() {
-		NeuralNet net = new NeuralNet();
+		NeuralNet net = new NeuralNet(learningParameters);
 		net.addLayer(new InputLayer(2));
 		net.addLayer(new TanhLayer(2));
 		net.addLayer(new TanhLayer(1));
@@ -56,13 +58,13 @@ public class Main {
 				learningRate = minLearningRate;
 			lmse = mse;
 
-			net.train(new double[] { 0, 0 }, new double[] { 0 }, learningRate);
+			net.train(new double[] { 0, 0 }, new double[] { 0 });
 			mse += net.getMSE();
-			net.train(new double[] { 0, 1 }, new double[] { 1 }, learningRate);
+			net.train(new double[] { 0, 1 }, new double[] { 1 });
 			mse += net.getMSE();
-			net.train(new double[] { 1, 0 }, new double[] { 1 }, learningRate);
+			net.train(new double[] { 1, 0 }, new double[] { 1 });
 			mse += net.getMSE();
-			net.train(new double[] { 1, 1 }, new double[] { 0 }, learningRate);
+			net.train(new double[] { 1, 1 }, new double[] { 0 });
 			mse += net.getMSE();
 
 			mse /= 4.0;
@@ -96,7 +98,7 @@ public class Main {
 		// Page 14 example 2.2
 
 		// Construct Layers
-		NeuralNet net = new NeuralNet();
+		NeuralNet net = new NeuralNet(learningParameters);
 		net.addLayer(new InputLayer(2));
 		net.addLayer(new SigmoidLayer(2));
 		net.addLayer(new SigmoidLayer(1));
@@ -133,7 +135,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		NeuralNet net = new NeuralNet();
+		NeuralNet net = new NeuralNet(learningParameters);
 		net.addLayer(new InputLayer(400));
 		net.addLayer(new TanhLayer(300));
 		net.addLayer(new TanhLayer(10));
@@ -158,10 +160,11 @@ public class Main {
 			lmse = mse;
 
 			int N = 2;
+			
+			net.getLearningParameters().setLearningRate(newLearningRate);
 
 			for (int i = 0; i < N; i++) {
-				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i],
-						newLearningRate);
+				net.train(DataSetLoader.pixels[i], DataSetLoader.result[i]);
 				mse += net.getMSE();
 				if (i % 1000 == 0)
 					System.out.println("Epoch Number: " + epoch + ", "
@@ -203,7 +206,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		NeuralNet net = new NeuralNet();
+		NeuralNet net = new NeuralNet(learningParameters);
 		net.addLayer(new InputLayer(400));
 		net.addLayer(new TanhLayer(300));
 		net.addLayer(new TanhLayer(10));
@@ -224,7 +227,7 @@ public class Main {
 			@Override
 			public void onEpochFinish() {
 				System.out.println("epoch num: " + trainingHelper.getEpoch() + ", MSE= "+trainingHelper.getEpochMSE());
-				if (trainingHelper.getEpoch() == 10)
+				if (trainingHelper.getEpoch() == 20)
 					trainingHelper.stopTraining();
 			}
 		});
@@ -253,6 +256,7 @@ public class Main {
 		// testDataSet();
 
 		// testLoadNetDataSet();
+		learningParameters = new LearningParameters(0.001, 0.01, 0.01);
 		testTrainingHelper();
 	}
 
