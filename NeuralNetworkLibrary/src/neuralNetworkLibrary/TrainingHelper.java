@@ -5,8 +5,7 @@ public class TrainingHelper {
 	private NeuralNet neuralNet;
 	private TrainingDataSet trainingDataSet;
 	private TrainingDataSet mseTrainingDataSet;
-	private double learningRate;
-	private double momentum;
+	private LearningParameters learningParameters;
 	private int epoch;
 	private double epochMSE;
 
@@ -17,13 +16,11 @@ public class TrainingHelper {
 	private boolean datasetShuffle;
 
 	public TrainingHelper(NeuralNet neuralNet, TrainingDataSet trainingDataSet,
-			TrainingDataSet mseTrainingDataSet, double learningRate,
-			double momentum) {
+			TrainingDataSet mseTrainingDataSet, LearningParameters learningParameters) {
 		this.neuralNet = neuralNet;
 		this.trainingDataSet = trainingDataSet;
 		this.mseTrainingDataSet = mseTrainingDataSet;
-		this.learningRate = learningRate;
-		this.momentum = momentum;
+		this.learningParameters = learningParameters;
 		this.epoch = 1;
 		this.datasetShuffle = true;
 	}
@@ -33,19 +30,17 @@ public class TrainingHelper {
 		this.neuralNet = neuralNet;
 		this.trainingDataSet = trainingDataSet;
 		this.mseTrainingDataSet = mseTrainingDataSet;
-		this.learningRate = 0.1;
-		this.momentum = 0;
+		this.learningParameters = new LearningParameters();
 		this.epoch = 1;
 		this.datasetShuffle = true;
 	}
 
 	public TrainingHelper(NeuralNet neuralNet, TrainingDataSet trainingDataSet,
-			double learningRate, double momentum) {
+			LearningParameters learningParameters) {
 		this.neuralNet = neuralNet;
 		this.trainingDataSet = trainingDataSet;
 		this.mseTrainingDataSet = null;
-		this.learningRate = learningRate;
-		this.momentum = momentum;
+		this.learningParameters = learningParameters;
 		this.epoch = 1;
 		this.datasetShuffle = true;
 	}
@@ -55,8 +50,7 @@ public class TrainingHelper {
 		this.neuralNet = neuralNet;
 		this.trainingDataSet = trainingDataSet;
 		this.mseTrainingDataSet = null;
-		this.learningRate = 0.1;
-		this.momentum = 0;
+		this.learningParameters = new LearningParameters();
 		this.epoch = 1;
 		this.datasetShuffle = true;
 	}
@@ -70,8 +64,7 @@ public class TrainingHelper {
 			int ind = 1;
 			for (TrainingDataItem trainingDataItem : trainingDataSet) {
 				neuralNet.train(trainingDataItem.getInputVector(),
-						trainingDataItem.getExpectedOutputVector(),
-						learningRate);
+						trainingDataItem.getExpectedOutputVector());
 
 				if (itemTrainListener != null)
 					itemTrainListener.onItemTrain(ind);
@@ -117,6 +110,10 @@ public class TrainingHelper {
 	public void stopTraining() {
 		stopTrainingFlag = true;
 	}
+	
+	public void setLearningRate(double learningRate){
+		neuralNet.getLearningParameters().setLearningRate(learningRate);
+	}
 
 	/**
 	 * @return the neuralNet
@@ -161,36 +158,6 @@ public class TrainingHelper {
 	 */
 	public void setMseTrainingDataSet(TrainingDataSet mseTrainingDataSet) {
 		this.mseTrainingDataSet = mseTrainingDataSet;
-	}
-
-	/**
-	 * @return the learningRate
-	 */
-	public double getLearningRate() {
-		return learningRate;
-	}
-
-	/**
-	 * @param learningRate
-	 *            the learningRate to set
-	 */
-	public void setLearningRate(double learningRate) {
-		this.learningRate = learningRate;
-	}
-
-	/**
-	 * @return the momentum
-	 */
-	public double getMomentum() {
-		return momentum;
-	}
-
-	/**
-	 * @param momentum
-	 *            the momentum to set
-	 */
-	public void setMomentum(double momentum) {
-		this.momentum = momentum;
 	}
 
 	/**
@@ -260,4 +227,11 @@ public class TrainingHelper {
 		return epochMSE;
 	}
 
+	public LearningParameters getLearningParameters() {
+		return learningParameters;
+	}
+
+	public void setLearningParameters(LearningParameters learningParameters) {
+		this.learningParameters = learningParameters;
+	}	
 }

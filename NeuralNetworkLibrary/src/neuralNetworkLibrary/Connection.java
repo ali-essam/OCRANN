@@ -8,18 +8,21 @@ public class Connection implements Serializable {
 	private transient Neuron from;
 	private Neuron to;
 	private double weight;
+	private transient double previousWeight;
 
 	public Connection(Neuron from, Neuron to, double weight) {
 		this.from = from;
 		this.to = to;
 		this.weight = weight;
+		this.previousWeight = weight;
 	}
 
 	public Connection(Neuron from, Neuron to) {
 		this.from = from;
 		this.to = to;
 		weight = Math.random();
-		if(Math.random()<0.5)weight*=-1;
+		if (Math.random()<0.5) weight*=-1;
+		previousWeight = weight;
 	}
 
 	/**
@@ -62,5 +65,13 @@ public class Connection implements Serializable {
 	 */
 	public void setWeight(double weight) {
 		this.weight = weight;
+	}
+
+	public double getPreviousWeight() {
+		return previousWeight;
+	}
+
+	public void setPreviousWeight(double previousWeight) {
+		this.previousWeight = previousWeight;
 	}
 }

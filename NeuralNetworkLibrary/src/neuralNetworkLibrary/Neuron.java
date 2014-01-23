@@ -72,11 +72,18 @@ public class Neuron implements Serializable{
 		updateDelta(errorFactor);
 	}
 
-	public void updateWeights(double learningRate){
+	public void updateWeights(LearningParameters learningParameters){
+		double learningRate = learningParameters.getLearningRate();
+		double momentum = learningParameters.getMomentum();
+		double weightDecay = learningParameters.getWeightDecay();
 		bias += learningRate*delta;
 		for (Connection connection : inputConnections) {
-			double newWeight = connection.getWeight() + learningRate*connection.getFrom().getOutput()*delta; 
+			double oldWeight = connection.getWeight();
+			double newWeight = connection.getWeight() + learningRate*connection.getFrom().getOutput()*delta
+								+ momentum * (connection.getWeight() - connection.getPreviousWeight())
+								- learningRate * weightDecay * connection.getWeight(); 
 			connection.setWeight(newWeight);
+			connection.setPreviousWeight(oldWeight);
 		}
 	}
 

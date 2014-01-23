@@ -13,9 +13,19 @@ public class NeuralNet implements Serializable {
 	private transient Layer inputLayer;
 	private transient Layer outputLayer;
 	private double mse;
+	private LearningParameters learningParameters;
 
-	public NeuralNet() {
+	public LearningParameters getLearningParameters() {
+		return learningParameters;
+	}
+
+	public void setLearningParameters(LearningParameters learningParameters) {
+		this.learningParameters = learningParameters;
+	}
+
+	public NeuralNet(LearningParameters learningParameters) {
 		layers = new ArrayList<Layer>();
+		this.learningParameters = learningParameters;
 	}
 
 	public double[] run(double[] inputVector) throws IllegalArgumentException {
@@ -61,8 +71,7 @@ public class NeuralNet implements Serializable {
 		mse /= 2.0;
 	}
 
-	public void train(double[] inputVector, double[] expectedOutputVector,
-			double learningRate) {
+	public void train(double[] inputVector, double[] expectedOutputVector) {
 		run(inputVector);
 		outputLayer.updateNeuronsDelta(expectedOutputVector);
 
@@ -71,7 +80,7 @@ public class NeuralNet implements Serializable {
 		}
 
 		for (int i = 1; i < layers.size(); i++) {
-			layers.get(i).updateNeuronWeights(learningRate);
+			layers.get(i).updateNeuronWeights(this.learningParameters);
 		}
 
 		updateMSE(expectedOutputVector, this.outputLayer.getOutputVector());

@@ -18,7 +18,6 @@ public abstract class Layer implements Serializable {
 		}
 	}
 
-
 	protected void run() {
 		for (int i = 0; i < neurons.size(); i++) {
 			neurons.get(i).run();
@@ -82,9 +81,9 @@ public abstract class Layer implements Serializable {
 		}
 	}
 	
-	public void updateNeuronWeights(double learningRate){
+	public void updateNeuronWeights(LearningParameters learningParameters){
 		for (Neuron neuron : neurons) {
-			neuron.updateWeights(learningRate);
+			neuron.updateWeights(learningParameters);
 		}
 	}
 
