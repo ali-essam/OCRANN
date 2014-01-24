@@ -214,6 +214,13 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+#Netbeans
+nbproject/
+!project.properties
+!project.xml
+
 #Others
 OCRANN_PC/src/OCR_Images/
 OCRANN_PC/MNIST
+/NeuralNetworkLibrary/nbproject/private/
+/OCRANN_PC/nbproject/private/
