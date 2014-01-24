@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public abstract class Layer implements Serializable {
 	private static final long serialVersionUID = 8320324059182006752L;
 	
-	public int neuronCount;
+	private int neuronCount;
 	protected List<Neuron> neurons;
 
 	public Layer(int neuronCount) {
@@ -92,5 +92,9 @@ public abstract class Layer implements Serializable {
 	 */
 	public List<Neuron> getNeurons() {
 		return neurons;
+	}
+
+	public int getNeuronCount() {
+		return neuronCount;
 	}
 }

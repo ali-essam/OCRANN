@@ -29,7 +29,7 @@ public class NeuralNet implements Serializable {
 	}
 
 	public double[] run(double[] inputVector) throws IllegalArgumentException {
-		if (inputVector.length != inputLayer.neuronCount) {
+		if (inputVector.length != inputLayer.getNeuronCount()) {
 			throw new IllegalArgumentException(
 					"input vector length must equal input layer size");
 		}
@@ -117,4 +117,14 @@ public class NeuralNet implements Serializable {
 	public double getMSE() {
 		return mse;
 	}
+
+	public Layer getInputLayer() {
+		return inputLayer;
+	}
+
+
+	public Layer getOutputLayer() {
+		return outputLayer;
+	}
+
 }
