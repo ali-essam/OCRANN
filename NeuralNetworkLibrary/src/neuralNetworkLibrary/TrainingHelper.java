@@ -14,9 +14,13 @@ public class TrainingHelper {
 
 	private boolean stopTrainingFlag;
 	private boolean datasetShuffle;
+	
+	private double[] inputVector;
+	private double[] expectedOutputVector;
 
 	public TrainingHelper(NeuralNet neuralNet, TrainingDataSet trainingDataSet,
-			TrainingDataSet mseTrainingDataSet, LearningParameters learningParameters) {
+			TrainingDataSet mseTrainingDataSet,
+			LearningParameters learningParameters) {
 		this.neuralNet = neuralNet;
 		this.trainingDataSet = trainingDataSet;
 		this.mseTrainingDataSet = mseTrainingDataSet;
@@ -55,6 +59,18 @@ public class TrainingHelper {
 		this.datasetShuffle = true;
 	}
 
+	private void copyDataitemToArray(TrainingDataItem dataItem,
+			double[] inputVector, double[] expectedOutputVector) {
+		for (int i = 0; i < dataItem.getInputVector().size(); i++) {
+			inputVector[i] = ((Number)dataItem.getInputVector().get(i)).doubleValue();
+		}
+
+		for (int i = 0; i < dataItem.getExpectedOutputVector().size(); i++) {
+			expectedOutputVector[i] = (Double) dataItem
+					.getExpectedOutputVector().get(i);
+		}
+	}
+
 	public void train() {
 		stopTrainingFlag = false;
 		while (!stopTrainingFlag) {
@@ -62,9 +78,15 @@ public class TrainingHelper {
 				trainingDataSet.shuffle();
 
 			int ind = 1;
+			inputVector = new double[neuralNet.getInputLayer()
+					.getNeuronCount()];
+			expectedOutputVector = new double[neuralNet
+					.getOutputLayer().getNeuronCount()];
 			for (TrainingDataItem trainingDataItem : trainingDataSet) {
-				neuralNet.train(trainingDataItem.getInputVector(),
-						trainingDataItem.getExpectedOutputVector());
+
+				copyDataitemToArray(trainingDataItem, inputVector,
+						expectedOutputVector);
+				neuralNet.train(inputVector, expectedOutputVector);
 
 				if (itemTrainListener != null)
 					itemTrainListener.onItemTrain(ind);
@@ -85,13 +107,18 @@ public class TrainingHelper {
 		}
 	}
 
-	private void updateEpochMSE(){
+	private void updateEpochMSE() {
 		epochMSE = 0;
-		if(mseTrainingDataSet==null)return;
+		if (mseTrainingDataSet == null)
+			return;
 		for (TrainingDataItem trainingDataItem : mseTrainingDataSet) {
-			double[] outputVector = neuralNet.run(trainingDataItem.getInputVector());
+			copyDataitemToArray(trainingDataItem, inputVector,
+					expectedOutputVector);
 			
-			epochMSE += calculateMSE(trainingDataItem.getExpectedOutputVector(), outputVector); 
+			double[] outputVector = neuralNet.run(inputVector);
+
+			epochMSE += calculateMSE(
+					inputVector, outputVector);
 		}
 		epochMSE /= mseTrainingDataSet.size();
 	}
@@ -110,8 +137,8 @@ public class TrainingHelper {
 	public void stopTraining() {
 		stopTrainingFlag = true;
 	}
-	
-	public void setLearningRate(double learningRate){
+
+	public void setLearningRate(double learningRate) {
 		neuralNet.getLearningParameters().setLearningRate(learningRate);
 	}
 
@@ -233,5 +260,5 @@ public class TrainingHelper {
 
 	public void setLearningParameters(LearningParameters learningParameters) {
 		this.learningParameters = learningParameters;
-	}	
+	}
 }
