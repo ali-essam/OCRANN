@@ -2,6 +2,8 @@ package main;
 
 import java.io.*;
 
+import mnistDataset.MNISTDatasetLoader;
+import mnistDataset.OnDataitemLoadListener;
 import neuralNetworkLibrary.*;
 
 public class Main {
@@ -244,6 +246,50 @@ public class Main {
 		trainingHelper.setLearningRate(0.001);
 		trainingHelper.train();
 	}
+	
+	
+	private static void testMNISTTrainingHelper() {
+		NeuralNet net = new NeuralNet(learningParameters);
+		net.addLayer(new InputLayer(784));
+		net.addLayer(new TanhLayer(330));
+		net.addLayer(new TanhLayer(10));
+
+		net.connectAllLayers();
+
+		MNISTDatasetLoader.setOnDataitemLoadListener(new OnDataitemLoadListener() {
+			
+			@Override
+			public void onDataitemLoadListener(int currentProgress) {
+				if(currentProgress%1000==0)System.out.println(currentProgress);
+				
+			}
+		});
+		TrainingDataSet trainingDataSet = MNISTDatasetLoader.loadMNISTDataset("MNIST/train-images.idx3-ubyte", "MNIST/train-labels.idx1-ubyte");
+
+		final TrainingHelper trainingHelper = new TrainingHelper(net,
+				trainingDataSet, trainingDataSet.subDataSet(0, 200));
+
+		trainingHelper.setOnEpochFinishListner(new OnEpochFinishListener() {
+			@Override
+			public void onEpochFinish() {
+				System.out.println("epoch num: " + trainingHelper.getEpoch() + ", MSE= "+trainingHelper.getEpochMSE());
+				if (trainingHelper.getEpoch() == 20)
+					trainingHelper.stopTraining();
+			}
+		});
+
+		trainingHelper.setOnItemTrainListener(new OnItemTrainListener() {
+
+			@Override
+			public void onItemTrain(int trainingDataItemIndex) {
+				if(trainingDataItemIndex%1000==0)System.out.println(trainingDataItemIndex + " of "
+						+ trainingHelper.getTrainingDataSet().size());
+			}
+		});
+
+		trainingHelper.setLearningRate(0.001);
+		trainingHelper.train();
+	}
 
 	/**
 	 * @param args
@@ -256,8 +302,8 @@ public class Main {
 		// testDataSet();
 
 		// testLoadNetDataSet();
-		learningParameters = new LearningParameters(0.001, 0.01, 0.01);
-		testTrainingHelper();
+		learningParameters = new LearningParameters(0.001, 0.0, 0.0);
+		testMNISTTrainingHelper();
 	}
 
 }
