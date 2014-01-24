@@ -1,4 +1,4 @@
-package main;
+package mnistDataset;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -6,13 +6,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import neuralNetworkLibrary.TrainingDataItem;
 import neuralNetworkLibrary.TrainingDataSet;
 
 public class MNISTDatasetLoader {
-	static TrainingDataSet getMNISTDataset(String trainingSetFileName, String labelFileName){
+	private static OnDataitemLoadListener onDataitemLoadListener;
+
+	public static TrainingDataSet loadMNISTDataset(String trainingSetFileName, String labelFileName){
 		File trainingFile = new File(trainingSetFileName);
 		File labelFile = new File(labelFileName);
 		
@@ -34,7 +37,9 @@ public class MNISTDatasetLoader {
 		TrainingDataSet trainingDataSet = new TrainingDataSet();
 		
 		try {
+			@SuppressWarnings("unused")
 			int trainingMagicNumber = trainDis.readInt();
+			@SuppressWarnings("unused")
 			int labelMagicNumber = labelDis.readInt();
 			
 			int count = trainDis.readInt();
@@ -44,19 +49,21 @@ public class MNISTDatasetLoader {
 			int cols = trainDis.readInt();
 			//System.out.println(trainingMagicNumber +","+labelMagicNumber);
 			
-			for (int i = 0; i < 10; i++) {
-				double[] pixels = new double[rows*cols];
-				double[] out = new double[10];
+			for (int i = 0; i < count; i++) {
+				ArrayList pixels = new ArrayList<>(rows*cols);
+				ArrayList<Double>out = new ArrayList<Double>(10);
 				for (int j = 0; j < rows*cols; j++) {
-					pixels[i] = trainDis.readByte();
+					pixels.add(trainDis.readByte());
+					
 				}
 				int label = labelDis.readByte();
-				Arrays.fill(out, -1);
-				out[label] = 1;
+				for (int j = 0; j < 10; j++) {
+					out.add(-1.0);
+				}
+				out.set(label,1.0);
 				trainingDataSet.addTrainingDataItem(new TrainingDataItem(pixels,out));
-				System.out.println(label);
+				if(onDataitemLoadListener!=null)onDataitemLoadListener.onDataitemLoadListener(i);
 			}
-			
 			trainDis.close();
 			labelDis.close();
 		} catch (IOException e) {
@@ -65,5 +72,10 @@ public class MNISTDatasetLoader {
 		
 		
 		return trainingDataSet;
+	}
+	
+	public static void setOnDataitemLoadListener(
+			OnDataitemLoadListener _onDataitemLoadListener) {
+		onDataitemLoadListener = _onDataitemLoadListener;
 	}
 }
