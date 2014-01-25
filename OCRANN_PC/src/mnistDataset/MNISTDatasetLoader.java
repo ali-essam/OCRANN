@@ -1,14 +1,13 @@
 package mnistDataset;
 
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import main.OtsuThresholding;
 import neuralNetworkLibrary.TrainingDataItem;
 import neuralNetworkLibrary.TrainingDataSet;
 
@@ -47,25 +46,45 @@ public class MNISTDatasetLoader {
 			
 			int rows = trainDis.readInt();
 			int cols = trainDis.readInt();
-			//System.out.println(trainingMagicNumber +","+labelMagicNumber);
+
+			//tmpPixels to hold pixels temporarily before thresholding
+			double[] tmpPixels = new double[rows*cols];
 			
-			for (int i = 0; i < count; i++) {
-				ArrayList pixels = new ArrayList<>(rows*cols);
-				ArrayList<Double>out = new ArrayList<Double>(10);
+			for (int i = 0; i < count; i++) { // debugging note: change count to 300 for testing
+				//read pixels into tmpPixels
 				for (int j = 0; j < rows*cols; j++) {
-					pixels.add(trainDis.readByte());
-					
+					tmpPixels[j] = trainDis.readUnsignedByte();
 				}
-				int label = labelDis.readByte();
+				
+				// Threshold pixels to 0,1
+				ArrayList<Byte> pixels = OtsuThresholding.convertToBinary(tmpPixels);
+				
+				//Debugging: view Thresholded pixels
+				/*for (int j = 0; j < rows; j++) {
+					for (int k = 0; k < cols; k++) {
+						System.out.print((pixels.get(j*rows+k)==0)?".":"X");
+					}
+					System.out.println();
+				}*/
+				
+				// Set expected output array according to label 
+				ArrayList<Double>out = new ArrayList<Double>(10);
+				int label = labelDis.readUnsignedByte();
 				for (int j = 0; j < 10; j++) {
 					out.add(-1.0);
 				}
 				out.set(label,1.0);
+				//System.out.println(label);
+				
+				
 				trainingDataSet.addTrainingDataItem(new TrainingDataItem(pixels,out));
+				
 				if(onDataitemLoadListener!=null)onDataitemLoadListener.onDataitemLoadListener(i);
 			}
+			
 			trainDis.close();
 			labelDis.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
