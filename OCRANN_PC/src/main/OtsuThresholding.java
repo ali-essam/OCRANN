@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class OtsuThresholding {
@@ -44,16 +45,17 @@ public class OtsuThresholding {
 		return threshold;
 	}
 
-	public static double[] convertToBinary(double[] pixels) {
-
+	public static ArrayList<Byte> convertToBinary(double[] pixels) {
+		// TODO: Take ArrayList instead of double[]
+		ArrayList<Byte>ret = new ArrayList<Byte>();
 		int threshold = getThreshold(pixels);
 		for (int i = 0; i < pixels.length; i++) {
 			if (pixels[i] > threshold)
-				pixels[i] = 1;
+				ret.add((byte)1);
 			else
-				pixels[i] = 0;
+				ret.add((byte)0);
 		}
-		return pixels;
+		return ret;
 	}
 
 }
