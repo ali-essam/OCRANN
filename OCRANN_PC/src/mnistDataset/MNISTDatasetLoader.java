@@ -71,7 +71,7 @@ public class MNISTDatasetLoader {
 				ArrayList<Double>out = new ArrayList<Double>(10);
 				int label = labelDis.readUnsignedByte();
 				for (int j = 0; j < 10; j++) {
-					out.add(-1.0);
+					out.add(0.0);
 				}
 				out.set(label,1.0);
 				//System.out.println(label);
