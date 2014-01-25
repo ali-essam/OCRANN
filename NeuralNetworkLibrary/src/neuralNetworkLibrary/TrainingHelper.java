@@ -131,7 +131,7 @@ public class TrainingHelper {
 			error = outputVector[i] - expectedOutputVector[i];
 			mse += error * error;
 		}
-		return mse / 2.0;
+		return (mse/outputVector.length) / 2.0;
 	}
 
 	public void stopTraining() {
