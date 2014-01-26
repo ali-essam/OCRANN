@@ -13,6 +13,7 @@ import neuralNetworkLibrary.TrainingDataSet;
 
 public class MNISTDatasetLoader {
 	private static OnDataitemLoadListener onDataitemLoadListener;
+        private static OnMNISTLoadFinish onMNISTLoadFinish;
 
 	public static TrainingDataSet loadMNISTDataset(String trainingSetFileName, String labelFileName){
 		File trainingFile = new File(trainingSetFileName);
@@ -89,7 +90,7 @@ public class MNISTDatasetLoader {
 			e.printStackTrace();
 		}
 		
-		
+		if(onMNISTLoadFinish!=null)onMNISTLoadFinish.OnMNISTLoadFinish(trainingDataSet);
 		return trainingDataSet;
 	}
 	
@@ -97,4 +98,9 @@ public class MNISTDatasetLoader {
 			OnDataitemLoadListener _onDataitemLoadListener) {
 		onDataitemLoadListener = _onDataitemLoadListener;
 	}
+
+        public static void setOnMNISTLoadFinish(OnMNISTLoadFinish onMNISTLoadFinish) {
+            MNISTDatasetLoader.onMNISTLoadFinish = onMNISTLoadFinish;
+        }
+        
 }
