@@ -1,6 +1,9 @@
 package neuralNetworkLibrary;
 
-public class LearningParameters {
+import java.io.Serializable;
+
+public class LearningParameters implements Serializable {
+	private static final long serialVersionUID = -4076236859963180905L;
 	
 	private double learningRate;
 	private double momentum;
