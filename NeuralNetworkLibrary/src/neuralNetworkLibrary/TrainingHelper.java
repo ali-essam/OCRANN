@@ -118,7 +118,7 @@ public class TrainingHelper {
 			double[] outputVector = neuralNet.run(inputVector);
 
 			epochMSE += calculateMSE(
-					inputVector, outputVector);
+					expectedOutputVector, outputVector);
 		}
 		epochMSE /= mseTrainingDataSet.size();
 	}

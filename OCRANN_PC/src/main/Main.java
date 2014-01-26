@@ -287,7 +287,7 @@ public class Main {
 			}
 		});
 
-		trainingHelper.setLearningRate(0.001);
+		//trainingHelper.setLearningRate(0.001);
 		trainingHelper.train();
 	}
 
@@ -302,7 +302,7 @@ public class Main {
 		// testDataSet();
 
 		// testLoadNetDataSet();
-		learningParameters = new LearningParameters(0.001, 0.0, 0.0);
+		learningParameters = new LearningParameters(0.001, 0.1, 0.01);
 		testMNISTTrainingHelper();
 	}
 
