@@ -218,9 +218,10 @@ pip-log.txt
 nbproject/
 !project.properties
 !project.xml
+/NeuralNetworkLibrary/nbproject/private/
+/OCRANN_PC/nbproject/private/
 
 #Others
 OCRANN_PC/src/OCR_Images/
 OCRANN_PC/MNIST
-/NeuralNetworkLibrary/nbproject/private/
-/OCRANN_PC/nbproject/private/
+OCRANN_PC/nets
