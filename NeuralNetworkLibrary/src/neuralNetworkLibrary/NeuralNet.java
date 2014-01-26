@@ -1,12 +1,14 @@
 package neuralNetworkLibrary;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class NeuralNet implements Serializable {
+public class NeuralNet implements Serializable,Cloneable {
 	private static final long serialVersionUID = 9187767511560185035L;
 
 	private transient ArrayList<Layer> layers;
@@ -111,6 +113,31 @@ public class NeuralNet implements Serializable {
 		outputLayer = layers.get(layers.size()-1);
 	}
 
+	public NeuralNet clone() {
+		try {
+			return (NeuralNet) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public NeuralNet deepClone() {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(this);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			return (NeuralNet) ois.readObject();
+		} catch (IOException e) {
+			return null;
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+	}
+	
 	/**
 	 * @return the mse
 	 */
