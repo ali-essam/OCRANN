@@ -3,7 +3,6 @@ package main;
 import java.io.*;
 
 import mnistDataset.MNISTDatasetLoader;
-import mnistDataset.OnDataitemLoadListener;
 import neuralNetworkLibrary.*;
 
 
@@ -37,7 +36,7 @@ public class TestingMain {
 	public static void runningTest()
 	{
 		TrainingDataSet trainingDataSet = MNISTDatasetLoader.loadMNISTDataset("MNIST/t10k-images.idx3-ubyte", "MNIST/t10k-labels.idx1-ubyte");
-		NeuralNet neuralNet = loadNetwork("nets/net8");
+		NeuralNet neuralNet = loadNetwork("nets/net38");
 		
 		int score = 0;
 		double[] inputVector = new double[neuralNet.getInputLayer()
