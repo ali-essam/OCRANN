@@ -37,8 +37,8 @@ public class ImageSegmenter
 		startY = 0;
 		pixels1D = new double [width*height];
 		int counter=0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				pixels1D[counter++]=image.getRGB(i, j);
 			}
 		}
@@ -49,10 +49,10 @@ public class ImageSegmenter
 	}
 	
 	public double[][] convertTo2D(double[] pixels1D, int width, int height) {
-		double[][] newPixels2D = new double [width][height];
+		double[][] newPixels2D = new double [height][width];
 		int counter=0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				newPixels2D[i][j]=pixels1D[counter++];
 			}
 		}
@@ -69,8 +69,8 @@ public class ImageSegmenter
 		int rgb;
 		double[] grayScalePixles1D = new double[pixels1D.length];
 		int counter=0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				rgb = (int)pixels1D[counter];
 				red = new Color(rgb).getRed();
 				green = new Color(rgb).getGreen();
@@ -91,17 +91,14 @@ public class ImageSegmenter
 		ArrayList <Byte> newPixels =OtsuThresholding.convertToBinary(grayScalePixels1D);
 	    double[] binaryPixels1D = new double[newPixels.size()];
 		int counter=0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				binaryPixels1D[counter++] = (double)newPixels.get(i);
-			}
+		for (int i = 0; i < height*width; i++) {
+				binaryPixels1D[i] = (double)newPixels.get(i);
 		}
-		
 		return binaryPixels1D;
 	}
 	private boolean valid(double[][] pixels2D ,int x, int y, boolean[][] visited) {
 		if (x >= 0 && x < width && y >= 0 && y < height
-				&& visited[x][y] == false && pixels2D[x][y] == 1)
+				&& visited[y][x] == false && pixels2D[y][x] == 1)
 			return true;
 		return false;
 	}
@@ -149,7 +146,7 @@ public class ImageSegmenter
 	public ImageSet segmenetImage(BufferedImage image)
 	{
 		setImage(image);
-		boolean[][] visited = new boolean[width][height];
+		boolean[][] visited = new boolean[height][width];
 		Arrays.fill(visited, 0);
 		convertToGrayScale();
 		convertToBinary();
@@ -187,7 +184,7 @@ public class ImageSegmenter
 		return squarePixels2D;
 	}
 	private double[][] cropImage(ImageBoundries imageBoundries, int width, int height) {
-		double[][] newPixels2D = new double[width][height];
+		double[][] newPixels2D = new double[height][width];
 		
 		for (int i = imageBoundries.Max_X; i <= imageBoundries.Max_X; i++){
 			for (int j = imageBoundries.Min_Y; j <= imageBoundries.Max_Y; j++) {
