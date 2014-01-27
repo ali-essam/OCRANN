@@ -1,5 +1,7 @@
 package imageProcessor;
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +41,7 @@ public class ImageSegmenter
 		int counter=0;
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				pixels1D[counter++]=image.getRGB(i, j);
+				pixels1D[counter++]=image.getRGB(j, i);
 			}
 		}
 	}
@@ -90,10 +92,10 @@ public class ImageSegmenter
 	public double[] convertToBinary (double[] grayScalePixels1D) {
 		ArrayList <Byte> newPixels =OtsuThresholding.convertToBinary(grayScalePixels1D);
 	    double[] binaryPixels1D = new double[newPixels.size()];
-		int counter=0;
 		for (int i = 0; i < height*width; i++) {
 				binaryPixels1D[i] = (double)newPixels.get(i);
 		}
+		
 		return binaryPixels1D;
 	}
 	private boolean valid(double[][] pixels2D ,int x, int y, boolean[][] visited) {
@@ -159,8 +161,9 @@ public class ImageSegmenter
 			int width = Math.abs(imageBoundrais.Max_X - imageBoundrais.Min_X);
 			int height = Math.abs(imageBoundrais.Max_Y - imageBoundrais.Min_Y);
 			double[][] rectImage = cropImage(imageBoundrais, width, height);
-			double[][] centralizedImage = centralizeImage(rectImage, width, height);
-			imageSet.addImage(centralizedImage);
+			//double[][] centralizedImage = centralizeImage(rectImage, width, height);
+			double[][] squareImage = scaleImage(rectImage, width, height, 28, 28);
+			imageSet.addImage(squareImage);
 			imageBoundrais = getSubImageBoundries(pixels2D, visited);
 		}
 		
@@ -172,11 +175,11 @@ public class ImageSegmenter
 		double[][] squarePixels2D = new double[length][length];
 		Arrays.fill(squarePixels2D, 0.0);
 		
-		int iOffset = (length - width) / 2;
-		int jOffset = (length - height) / 2;
+		int iOffset = (length - height) / 2;
+		int jOffset = (length - width) / 2;
 		
-		for (int i = iOffset; i < iOffset + width; i++) {
-			for (int j = jOffset; j < jOffset + height; j++) {
+		for (int i = iOffset; i < iOffset + height; i++) {
+			for (int j = jOffset; j < jOffset + width; j++) {
 				squarePixels2D[i][j] = image[i - iOffset][j - jOffset];
 			}
 		}
@@ -186,13 +189,38 @@ public class ImageSegmenter
 	private double[][] cropImage(ImageBoundries imageBoundries, int width, int height) {
 		double[][] newPixels2D = new double[height][width];
 		
-		for (int i = imageBoundries.Max_X; i <= imageBoundries.Max_X; i++){
-			for (int j = imageBoundries.Min_Y; j <= imageBoundries.Max_Y; j++) {
-				newPixels2D[i - imageBoundries.Min_X][j - imageBoundries.Min_Y] = pixels2D[i][j];
+		for (int i = imageBoundries.Min_Y; i <= imageBoundries.Max_Y; i++){
+			for (int j = imageBoundries.Min_X; j <= imageBoundries.Max_X; j++) {
+				newPixels2D[i - imageBoundries.Min_Y][j - imageBoundries.Min_X] = pixels2D[i][j];
 			}
 		}
 		
 		return newPixels2D;
+	}
+	
+	public double[][] scaleImage(double[][] image, int width, int height, int newWidth, int newHeight) {
+		BufferedImage tempImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				tempImage.setRGB(j, i, (int)image[i][j]);
+			}
+		}
+		
+		int length = Math.max(width, height);
+		BufferedImage squareImage = null;
+		AffineTransform transform = AffineTransform.getScaleInstance((double)width / newWidth, (double)height / newHeight);
+		AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+		squareImage = op.filter(tempImage, null);
+		
+		double[][] squarePixels2D = new double[length][length];
+		
+		for (int i = 0; i < length; i++) {
+			for (int j = 0; j < length; j++) {
+				squarePixels2D[i][j] = squareImage.getRGB(j, i);
+			}
+		}
+		
+		return squarePixels2D;
 	}
 	
 	/**
