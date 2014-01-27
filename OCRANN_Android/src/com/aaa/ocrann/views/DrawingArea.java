@@ -22,6 +22,9 @@ public class DrawingArea extends View {
 	float lastX = -1, lastY = -1;
 	float drawingRadius;
 
+	int boxWidth;
+	Rect boundsRect;
+	
 	OnDrawCompleteListener mOnDrawCompleteListener;
 
 	public DrawingArea(Context context) {
@@ -54,7 +57,25 @@ public class DrawingArea extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 		mbitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 		mcanvas = new Canvas(mbitmap);
+		boundsRect = new Rect();
+		if(w>h){
+			int dif = w-h;
+			boundsRect.top = 0;
+			boundsRect.left = dif/2;
+			boundsRect.right = h+dif/2;
+			boundsRect.bottom = h;
+		}
+		else{
+			int dif = h-w;
+			boundsRect.top = dif/2;
+			boundsRect.left = 0;
+			boundsRect.right = w;
+			boundsRect.bottom = w+dif/2;
+		}
+		
 		rect = new Rect(0, 0, w, h);
+		//Paint boundsPaint = new Paint();
+		//mcanvas.drawRect(boundsRect, mpaint);
 	}
 
 	public void onDraw(Canvas canvas) {
