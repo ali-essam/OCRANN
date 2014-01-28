@@ -21,6 +21,7 @@ public class DrawingArea extends View {
 	Context mcontext;
 	float lastX = -1, lastY = -1;
 	float drawingRadius;
+	float drawingScale = (float)(20.0/320.0);
 
 	int boxWidth;
 	Rect boundsRect;
@@ -45,18 +46,28 @@ public class DrawingArea extends View {
 		init();
 	}
 
+	private int convertPxtoDip(int pixel){
+	    float scale = getResources().getDisplayMetrics().density;
+	    int dips=(int) ((pixel / scale) + 0.5f);
+	    return dips;
+	}
+	
 	private void init() {
 		mpaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mpaint.setColor(0xFFFFFFFF);
-		drawingRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-				15, mcontext.getResources().getDisplayMetrics());
-		mpaint.setStrokeWidth(drawingRadius * 2);
 	}
 
 	public void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
 		mbitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 		mcanvas = new Canvas(mbitmap);
+		
+		drawingRadius = convertPxtoDip(Math.min(w, h)) * drawingScale;
+		mpaint.setStrokeWidth(drawingRadius * 2);
+		
+		Log.i("dp",convertPxtoDip(w) + "");
+		Log.i("dp",convertPxtoDip(h) + "");
+		
 		boundsRect = new Rect();
 		if(w>h){
 			int dif = w-h;
