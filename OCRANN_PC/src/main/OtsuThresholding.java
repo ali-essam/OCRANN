@@ -10,7 +10,7 @@ public class OtsuThresholding {
 		int[] histogram = new int[256];
 		Arrays.fill(histogram, 0);
 		for (int i = 0; i < pixels.length; i++) {
-			int color = new Color((int) pixels[i]).getRed();
+			int color = (int) pixels[i];
 			histogram[color]++;
 		}
 		return histogram;
@@ -50,7 +50,7 @@ public class OtsuThresholding {
 		ArrayList<Byte>ret = new ArrayList<Byte>();
 		int threshold = getThreshold(pixels);
 		for (int i = 0; i < pixels.length; i++) {
-			if (pixels[i] > threshold)
+			if ((int)pixels[i] > threshold)
 				ret.add((byte)1);
 			else
 				ret.add((byte)0);

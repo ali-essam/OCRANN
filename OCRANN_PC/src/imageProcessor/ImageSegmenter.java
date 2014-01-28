@@ -23,13 +23,14 @@ public class ImageSegmenter
 	int[] dy;
 	
 	public ImageSegmenter(BufferedImage _img) {
+
 		this.image = _img;
 		this.width = image.getWidth();
 		this.height = image.getHeight();
 		this.connectedComponentNum = 0;
 		this.pixels1D = null;
 		this.pixels2D = null;
-		dx = new int[] { 1, 1, 1, -1 - 1, -1, 0, 0 };
+		dx = new int[] { 1, 1, 1, -1, -1, -1, 0, 0 };
 		dy = new int[] { 0, 1, -1, 0, 1, -1, 1, -1 };
 		initialize();
 	}
@@ -41,7 +42,8 @@ public class ImageSegmenter
 		int counter=0;
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				pixels1D[counter++]=image.getRGB(j, i);
+				pixels1D[counter]=(double)image.getRGB(j, i);
+				counter++;
 			}
 		}
 	}
@@ -90,7 +92,13 @@ public class ImageSegmenter
 	}
 
 	public double[] convertToBinary (double[] grayScalePixels1D) {
-		ArrayList <Byte> newPixels =OtsuThresholding.convertToBinary(grayScalePixels1D);
+		double[] redColor = new double[grayScalePixels1D.length];
+		
+		for (int i = 0; i < redColor.length; i++) {
+			redColor[i] = new Color((int)grayScalePixels1D[i]).getRed();
+		}
+		
+		ArrayList <Byte> newPixels =OtsuThresholding.convertToBinary(redColor);
 	    double[] binaryPixels1D = new double[newPixels.size()];
 		for (int i = 0; i < height*width; i++) {
 				binaryPixels1D[i] = (double)newPixels.get(i);
@@ -105,7 +113,8 @@ public class ImageSegmenter
 		return false;
 	}
 
-	private void getConnectedComponent(double[][] pixels2D, int x, int y, ImageBoundries imageBoundries, boolean[][] visited) {
+	private ImageBoundries getConnectedComponent(double[][] pixels2D, int x, int y, boolean[][] visited) {
+		ImageBoundries imageBoundries = new ImageBoundries(0, 0, 0, 0);
 		Stack <Point> S = new Stack<Point>();
 		S.push(new Point(x, y));
 		while (!S.empty()) {
@@ -127,32 +136,32 @@ public class ImageSegmenter
 				}
 			}
 		}
+		
+		return imageBoundries;
 	}
 
 	private ImageBoundries getSubImageBoundries(double[][] pixels2D, boolean[][] visited) {
-		ImageBoundries imageBoundries = null;
 		for (; startX < width; startX++) {
 			for (; startY < height; startY++) {
-				if (visited[startY][startX] == false
-						&& pixels2D[startY][startX] == 1) {
-					getConnectedComponent(pixels2D, startX, startY, imageBoundries, visited);
+				if ((visited[startY][startX] == false) && ((int)pixels2D[startY][startX] == 1)) {
 					connectedComponentNum++;
-					return imageBoundries;
+					return getConnectedComponent(pixels2D, startX, startY, visited);
 				}
 			}
 		}
 		
 		return null;
 	}
-
-	public ImageSet segmenetImage(BufferedImage image)
-	{
-		setImage(image);
+	
+	public ImageSet segmentImage() {
 		boolean[][] visited = new boolean[height][width];
-		Arrays.fill(visited, 0);
+		for (int i = 0; i < visited.length; i++) {
+			Arrays.fill(visited[i], false);
+		}
 		convertToGrayScale();
 		convertToBinary();
 		convertTo2D();
+		//print(pixels2D, width, height);
 		ImageBoundries imageBoundrais = getSubImageBoundries(pixels2D, visited);
 		ImageSet imageSet = new ImageSet();
 		
@@ -161,8 +170,10 @@ public class ImageSegmenter
 			int width = Math.abs(imageBoundrais.Max_X - imageBoundrais.Min_X);
 			int height = Math.abs(imageBoundrais.Max_Y - imageBoundrais.Min_Y);
 			double[][] rectImage = cropImage(imageBoundrais, width, height);
+			print(rectImage, width, height);
 			//double[][] centralizedImage = centralizeImage(rectImage, width, height);
 			double[][] squareImage = scaleImage(rectImage, width, height, 28, 28);
+			print(squareImage, width, height);
 			imageSet.addImage(squareImage);
 			imageBoundrais = getSubImageBoundries(pixels2D, visited);
 		}
@@ -208,7 +219,7 @@ public class ImageSegmenter
 		
 		int length = Math.max(width, height);
 		BufferedImage squareImage = null;
-		AffineTransform transform = AffineTransform.getScaleInstance((double)width / newWidth, (double)height / newHeight);
+		AffineTransform transform = AffineTransform.getScaleInstance((double)newWidth / width, (double)newHeight / height);
 		AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
 		squareImage = op.filter(tempImage, null);
 		
@@ -221,6 +232,16 @@ public class ImageSegmenter
 		}
 		
 		return squarePixels2D;
+	}
+	
+	private void print(double[][] image, int width, int height) {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				System.out.print((int)image[i][j]);
+			}
+			
+			System.out.println();
+		}
 	}
 	
 	/**
