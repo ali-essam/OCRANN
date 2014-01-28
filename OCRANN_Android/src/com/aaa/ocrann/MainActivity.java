@@ -13,10 +13,12 @@ import neuralNetworkLibrary.NeuralNet;
 import com.aaa.ocrann.views.DrawingArea;
 import com.aaa.ocrann.views.OnDrawCompleteListener;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -30,6 +32,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -62,6 +65,27 @@ public class MainActivity extends Activity {
 			Log.e("nn", e.getMessage());
 		}
 		return net;
+	}
+	
+	private class LoadNetworkTask extends AsyncTask<Boolean, Boolean, Boolean>{
+
+		ProgressDialog dialog;
+		@Override
+		protected void onPreExecute(){
+			dialog = ProgressDialog.show(MainActivity.this, "Loading Handwritting Data", "Loading Handwritting Data");
+		}
+		
+		@Override
+		protected Boolean doInBackground(Boolean... params) {
+			net = loadNetwork();
+			return true;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean arg){
+			dialog.dismiss();
+		}
+		
 	}
 
 	@Override
@@ -103,7 +127,7 @@ public class MainActivity extends Activity {
 			public void afterTextChanged(Editable s) {
 				filteredContactObjectList = new ArrayList<ContactObject>();
 				for (int i = 0; i < contactObjectList.size(); i++) {
-					if (contactObjectList.get(i).number.startsWith(s.toString())) {
+					if (contactObjectList.get(i).number.contains(s.toString())) {
 						filteredContactObjectList.add(contactObjectList.get(i));
 					}
 				}
@@ -113,7 +137,6 @@ public class MainActivity extends Activity {
 		});
 
 		deleteButton.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View arg0) {
 				Editable text = phoneEditText.getText();
@@ -123,8 +146,18 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+		
+		deleteButton.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View arg0) {
+				phoneEditText.setText("");
+				return true;
+			}
+		});
 
-		net = loadNetwork();
+		LoadNetworkTask loadNetworkTask = new LoadNetworkTask();
+		loadNetworkTask.execute(true);
 	}
 
 	@Override
@@ -196,7 +229,7 @@ public class MainActivity extends Activity {
 		scaledBmp.recycle();
 		
 		try {
-			FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getPath()+"/pic"+ i +".png"));i++;
+			FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getPath()+"/OCRANN/Pic"+ i +".png"));i++;
 			centered.compress(Bitmap.CompressFormat.PNG, 100, fos);
 			fos.close();
 		} catch (Exception e) {
@@ -207,7 +240,7 @@ public class MainActivity extends Activity {
 		double[] inp = bitmapToArray(centered);
 		centered.recycle();
 		double[] out = net.run(inp);
-		
+		//double out[] = new double[10];
 		int max = getMax(out);
 		
 		phoneEditText.append(max+"");
@@ -232,7 +265,7 @@ public class MainActivity extends Activity {
 			String phoneNumber = phones
 					.getString(phones
 							.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-			phoneNumber = phoneNumber.replaceAll("[\\+\\-]", "");
+			phoneNumber = phoneNumber.replaceAll("[\\+\\- ]", "");
 			// Log.e("contacts", name + ": " + phoneNumber);
 			ContactObject contact = new ContactObject(name, phoneNumber);
 			contactObjectList.add(contact);
