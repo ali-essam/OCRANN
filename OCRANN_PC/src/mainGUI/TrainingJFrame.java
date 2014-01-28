@@ -625,7 +625,7 @@ public class TrainingJFrame extends javax.swing.JFrame {
         stopTrainButton.setEnabled(true);
         startTrainButton.setEnabled(false);
         
-        trainingHelper = new TrainingHelper(neuralNet, trainingDataSet, trainingDataSet.subDataSet(0, 200), learningParameters);
+        trainingHelper = new TrainingHelper(neuralNet, trainingDataSet, trainingDataSet.subDataSet(0, 700), learningParameters);
         epochProgressBar.setValue(0);
         epochProgressBar.setMaximum(trainingDataSet.size());
 
