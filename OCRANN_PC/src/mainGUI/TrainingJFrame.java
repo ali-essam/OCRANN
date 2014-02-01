@@ -157,6 +157,15 @@ public class TrainingJFrame extends javax.swing.JFrame {
         }
     }
 
+    private void logHeap(){
+    	long maxMemory = Runtime.getRuntime().maxMemory();
+    	System.out.println("maxMemory = " + maxMemory/(1024*1024));
+    	long totalMemory = Runtime.getRuntime().totalMemory();
+    	System.out.println("totalMemory = " + totalMemory/(1024*1024));
+    	long freeMemory = Runtime.getRuntime().freeMemory();
+    	System.out.println("freeMemory = " + freeMemory/(1024*1024));
+    }
+    
     /**
      * Creates new form TrainingJFrame
      */
@@ -651,7 +660,7 @@ public class TrainingJFrame extends javax.swing.JFrame {
 
             @Override
             protected void done() {
-
+            	System.out.println("Training Done");
             }
 
             @Override
@@ -663,6 +672,9 @@ public class TrainingJFrame extends javax.swing.JFrame {
                             epochProgressBar.setString(chunk.trainingDataItemIndex + " of 60000");
                         }
                     } else {
+                    	System.gc();
+                    	System.out.println("Calling GC");
+                    	logHeap();
                         epochFinished(chunk.neuralNet, chunk.epochNum, chunk.MSE);
                     }
                 }
@@ -706,8 +718,10 @@ public class TrainingJFrame extends javax.swing.JFrame {
                     loadNetPanel.setEnabled(true);
                     System.out.println("MNIST Dataset Loaded");
                 } catch (InterruptedException ex) {
+                	ex.printStackTrace();
                     Logger.getLogger(TrainingJFrame.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
+                	ex.printStackTrace();
                     Logger.getLogger(TrainingJFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
