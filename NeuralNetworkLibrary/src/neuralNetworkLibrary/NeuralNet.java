@@ -132,10 +132,11 @@ public class NeuralNet implements Serializable,Cloneable {
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			return (NeuralNet) ois.readObject();
 		} catch (IOException e) {
-			return null;
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			return null;
+			e.printStackTrace();
 		}
+		return null;
 	}
 	
 	/**
